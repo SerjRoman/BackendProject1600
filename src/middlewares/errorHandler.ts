@@ -1,21 +1,38 @@
-import { Request, Response, NextFunction } from "express"
-import { IFailure } from "../tools/result"
+import { Request, Response, NextFunction } from "express";
+import { IFailure } from "../tools/result";
+import { ErrorCodes } from "../types/error-codes";
 
-export enum ErrorCodes {
-    USER_EXISTS = "USER_EXISTS"
-}
+// Request -> validateMiddleware -> controller -> service -> repository -> db
+// {status: '',}
+// Success -> res.json({})
+// Failure
+// Request - validateMiddleware -> controller -> errorHandlerMiddleware
 
 export const errorHandlerMiddleware = (
-    err: IFailure,
-    req: Request,
-    res: Response,
-    next: NextFunction,
+	err: IFailure,
+	req: Request,
+	res: Response,
+	next: NextFunction
 ) => {
-    console.error(err)
-    // switch case вместо if'ов
-    if (err.message === ErrorCodes.USER_EXISTS) {
-        res.status(409).json(err)
-        return
-    }
-    res.status(500).json(err)
-}
+	let httpCode: number;
+	let message: string;
+
+	switch (err.code) {
+		case ErrorCodes.NOT_FOUND:
+			httpCode = 404;
+			message = "Resource not found";
+			break;
+		case ErrorCodes.EXISTS:
+			httpCode = 409;
+			message = "Resource exists";
+			break;
+		default:
+			httpCode = 500;
+			message = "Internal server error";
+			break;
+	}
+	res.status(httpCode).json({
+		status: "failure",
+		message: err.message ? err.message : message
+	});
+};

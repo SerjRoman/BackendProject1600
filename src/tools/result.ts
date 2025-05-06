@@ -1,3 +1,5 @@
+import { ErrorCodes } from "../types/error-codes"
+
 export interface ISuccess<T>{
     status: "success",
     data: T
@@ -5,7 +7,8 @@ export interface ISuccess<T>{
 
 export interface IFailure{
     status: "failure",
-    message: string
+    message?: string,
+    code?: ErrorCodes
 }
 
 export type Result<S> = ISuccess<S> | IFailure
@@ -16,9 +19,10 @@ export function success<T>(data: T): ISuccess<T>{
     }
 }
 
-export function failure(message: string){
+export function failure(code?: ErrorCodes, message?: string) : IFailure{
     return{
         status: "failure",
-        message: message
+        message: message,
+        code: code
     }
 }
