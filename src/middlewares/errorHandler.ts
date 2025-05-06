@@ -17,5 +17,7 @@ export const errorHandlerMiddleware = (
         res.status(409).json(err)
         return
     }
+
+
     res.status(500).json(err)
 }

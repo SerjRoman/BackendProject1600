@@ -9,6 +9,7 @@ export interface IFailure{
 }
 
 export type Result<S> = ISuccess<S> | IFailure
+
 export function success<T>(data: T): ISuccess<T>{
     return{
         status: "success",
