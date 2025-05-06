@@ -11,9 +11,11 @@ export const UserService = {
 		const result = await UserRepository.find({
 			email: data.email,
 		});
-		if (typeof result === "string") {
+
+        if (typeof result === "string") {
 			return failure(result);
 		}
+        // bcrypt
 		const token = sign(result, Config.SECRET_KEY, {
 			expiresIn: Config.AUTH_TOKEN_TTL,
 		});
