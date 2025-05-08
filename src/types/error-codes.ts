@@ -9,3 +9,12 @@ export enum ErrorCodes {
     EXISTS = "EXISTS",
     UNHANDLED= "UNHANDLED"
 }
+
+export function getErrorMessage(errorCode: string) {
+	switch (errorCode) {
+		case PrismaErrorCodes.UNIQUE:
+			return "Given non unique value.";
+        case PrismaErrorCodes.NOT_EXIST:
+            return "User doesn`t exist."
+	}
+}
