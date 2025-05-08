@@ -1,50 +1,28 @@
-import { Prisma } from "../generated/prisma";
-import { getErrorMessage, prisma } from "../prisma";
-
+import { client, PrismaKnownError } from "../prisma/client";
+import { ErrorCodes, PrismaErrorCodes } from "../types/error-codes";
+import { FindUser, User } from "./user.types";
 export const UserRepository = {
-	async findUserByEmail(email: string) {
+	find: async (where: FindUser): Promise<User | ErrorCodes> => {
 		try {
-			return await prisma.user.findUniqueOrThrow({
-				where: { 
-                    email: email 
-                },
+			const user = await client.user.findUniqueOrThrow({
+				where,
+				omit: {
+					password: true,
+				},
 			});
+			return user;
 		} catch (err) {
-            if (err instanceof Prisma.PrismaClientKnownRequestError){
-                console.log(err)
-                return getErrorMessage(err.code)
-            }
-            return "Unexpected error";
-        }
+			if (err instanceof PrismaKnownError) {
+				switch (err.code) {
+					case PrismaErrorCodes.UNIQUE:
+						return ErrorCodes.EXISTS;
+					case PrismaErrorCodes.NOT_EXIST:
+						return ErrorCodes.NOT_FOUND;
+					default:
+						return ErrorCodes.UNHANDLED;
+				}
+			}
+			return ErrorCodes.UNHANDLED;
+		}
 	},
-
-    async findUserById(id: number){
-        try {
-			return await prisma.user.findUniqueOrThrow({
-				where: { 
-                    id: id
-                },
-			});
-		} catch (err) {
-            if (err instanceof Prisma.PrismaClientKnownRequestError){
-                console.log(err)
-                return getErrorMessage(err.code)
-            }
-            return "Unexpected error";
-        }
-    },
-
-    async createUser(data: Prisma.UserCreateInput){
-        try {
-            return await prisma.user.create({
-                data: data,
-            });;
-        }catch(err) {
-            if (err instanceof Prisma.PrismaClientKnownRequestError){
-                console.log(err)
-                return getErrorMessage(err.code)
-            }
-            return "Unexpected error";
-        }
-    }
 };
