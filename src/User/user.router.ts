@@ -6,3 +6,7 @@ import { UserController } from "./user.controller"
 const router = Router()
 
 router.post("/login", validateMiddleware(UserSchema.login), UserController.login)
+router.post("/register", validateMiddleware(UserSchema.register), UserController.register)
+router.get("/me", UserController.getMe)
+
+export {router as UserRouter}

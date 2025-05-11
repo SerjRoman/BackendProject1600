@@ -26,10 +26,19 @@ export const errorHandlerMiddleware = (
 			httpCode = 409;
 			message = "Resource exists";
 			break;
+		case ErrorCodes.UNAUTHORIZED:
+			httpCode = 401;
+			message = "Unauthorized";
+			break;
+		case ErrorCodes.VALIDATION:
+			httpCode = 422
+			message = "Validation error ,pishite pravilno"
+			break
 		default:
 			httpCode = 500;
 			message = "Internal server error";
 			break;
+		
 	}
 	res.status(httpCode).json({
 		status: "failure",

@@ -7,5 +7,7 @@ export enum PrismaErrorCodes {
 export enum ErrorCodes {
     NOT_FOUND = "NOT_FOUND",
     EXISTS = "EXISTS",
-    UNHANDLED= "UNHANDLED"
+    UNHANDLED= "UNHANDLED",
+    UNAUTHORIZED = "UNAUTHORIZED",
+    VALIDATION = "VALIDATION"
 }
