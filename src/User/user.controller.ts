@@ -3,6 +3,7 @@ import { UserService } from "./user.service";
 
 export const UserController = {
 	login: async (req: Request, res: Response, next: NextFunction) => {
+		
 		const result = await UserService.login(req.body);
 		if (result.status === "failure") {
 			next(result);
@@ -10,16 +11,18 @@ export const UserController = {
 		}
 		res.json(result);
 	},
-    register: async (req: Request, res: Response, next: NextFunction) => {
-        const data = req.body
-        const user = await UserService.register(data)
+	register: async (req: Request, res: Response, next: NextFunction) => {
+		const data = req.body;
+		const result = await UserService.register(data);
 
-        if (user.status === "failure"){
-            next()
-        }
-    },
+		if (result.status === "failure") {
+			next(result);
+		}
+	},
 
-    user: async (req: Request, res: Response, next: NextFunction) => {
-        // const result = await UserService.getUserById()
-    }
+	user: async (req: Request, res: Response, next: NextFunction) => {
+        const userId = res.locals.userId;
+		const result = await UserService.user(userId);
+		res.json(result);
+	},
 };

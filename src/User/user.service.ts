@@ -4,27 +4,36 @@ import { UserRepository } from "./user.repository";
 import { failure, Result, success } from "../tools/result";
 import { sign } from "jsonwebtoken";
 import { Config } from "../config/config";
-import { CreateUser, User } from "./user.types";
+import { CreateUser, User, UserWithOutPassword } from "./user.types";
+import { compare, hash } from "bcrypt";
 export const UserService = {
 	login: async (
-		data: InferType<typeof UserSchema.login>
+		data: InferType<typeof UserSchema.login>,
+
 	): Promise<Result<string>> => {
 		const result = await UserRepository.find({
 			email: data.email,
+            password: data.password
 		});
 
-        if (typeof result === "string") {
+		if (typeof result === "string") {
 			return failure(result);
 		}
-        // bcrypt
+
+		const isMatch = await compare(data.password, result.password);
+
+		if (!isMatch) {
+			return { status: "failure", message: "Passwords are not similar" };
+		}
+		// bcrypt
 		const token = sign(result, Config.SECRET_KEY, {
 			expiresIn: Config.AUTH_TOKEN_TTL,
 		});
 		return success(token);
 	},
-    
-    register: async (userData: CreateUser): Promise<Result<string>> => {
-		const user = await UserRepository.findUserByEmail(userData.email);
+
+	register: async (data: CreateUser): Promise<Result<string>> => {
+		const user = await UserRepository.findUserByEmail(data.email);
 		if (user) {
 			return { status: "failure", message: "User exists" };
 		}
@@ -33,17 +42,30 @@ export const UserService = {
 			return { status: "failure", message: "something wrong" };
 		}
 
-		if (!user) {
+		const hashedPassword = await hash(data.password, 10);
+		const hashedUserData = {
+			...data,
+			password: hashedPassword,
+		};
+		const newUser = await UserRepository.createUser(hashedUserData);
+		if (typeof newUser === "string") {
+			return { status: "failure", message: newUser };
+		}
+
+		if (!newUser) {
 			return {
 				status: "failure",
 				message: "User wasn`t created successfully",
 			};
 		}
+		const token = sign({ id: newUser.id }, Config.SECRET_KEY, {
+			expiresIn: Config.AUTH_TOKEN_TTL,
+		});
 
-		return { status: "success", data: user };
+		return success(token);
 	},
 
-	user: async (id: number): Promise<Result<User>> => {
+	user: async (id: number): Promise<Result<UserWithOutPassword>> => {
 		const user = await UserRepository.findUserById(id);
 		if (!user) {
 			return { status: "failure", message: "user not found" };
@@ -51,6 +73,6 @@ export const UserService = {
 		if (typeof user === "string") {
 			return { status: "failure", message: user };
 		}
-		return { status: "success", data: user };
+		return success(user);
 	},
 };

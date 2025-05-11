@@ -1,9 +1,13 @@
 import { Prisma } from "../generated/prisma";
 import { client, PrismaKnownError } from "../prisma/client";
-import { ErrorCodes, getErrorMessage, PrismaErrorCodes } from "../types/error-codes";
-import { FindUser, User } from "./user.types";
+import {
+	ErrorCodes,
+	getErrorMessage,
+	PrismaErrorCodes,
+} from "../types/error-codes";
+import { FindUser, User, UserWithOutPassword } from "./user.types";
 export const UserRepository = {
-	find: async (where: FindUser): Promise<User | ErrorCodes> => {
+	findWithOutPassword: async (where: FindUser): Promise<UserWithOutPassword | ErrorCodes> => {
 		try {
 			const user = await client.user.findUniqueOrThrow({
 				where,
@@ -27,49 +31,63 @@ export const UserRepository = {
 		}
 	},
 
-    async findUserByEmail(email: string) {
+    find: async (where: FindUser): Promise<User | ErrorCodes> => {
 		try {
-			return await client.user.findUniqueOrThrow({
-				where: { 
-                    email: email 
-                },
+			const user = await client.user.findUniqueOrThrow({
+				where,
 			});
+			return user;
 		} catch (err) {
-            if (err instanceof PrismaKnownError){
-                console.log(err)
-                return getErrorMessage(err.code)
-            }
-            return "Unexpected error";
-        }
+			if (err instanceof PrismaKnownError) {
+				switch (err.code) {
+					case PrismaErrorCodes.UNIQUE:
+						return ErrorCodes.EXISTS;
+					case PrismaErrorCodes.NOT_EXIST:
+						return ErrorCodes.NOT_FOUND;
+					default:
+						return ErrorCodes.UNHANDLED;
+				}
+			}
+			return ErrorCodes.UNHANDLED;
+		}
 	},
 
-    async findUserById(id: number){
-        try {
-			return await client.user.findUniqueOrThrow({
-				where: { 
-                    id: id
-                },
+	async findUserByEmail(email: string) {
+		try {
+			return await this.findWithOutPassword({ email });
+            // return await UserRepository.find({email})
+		} catch (err) {
+			if (err instanceof PrismaKnownError) {
+				console.log(err);
+				return getErrorMessage(err.code);
+			}
+			return "Unexpected error";
+		}
+	},
+
+	async findUserById(id: number) {
+		try {
+			return await this.findWithOutPassword({ id });
+		} catch (err) {
+			if (err instanceof PrismaKnownError) {
+				console.log(err);
+				return getErrorMessage(err.code);
+			}
+			return "Unexpected error";
+		}
+	},
+
+	async createUser(data: Prisma.UserCreateInput) {
+		try {
+			return await client.user.create({
+				data: data,
 			});
 		} catch (err) {
-            if (err instanceof PrismaKnownError){
-                console.log(err)
-                return getErrorMessage(err.code)
-            }
-            return "Unexpected error";
-        }
-    },
-
-    async createUser(data: Prisma.UserCreateInput){
-        try {
-            return await client.user.create({
-                data: data,
-            });;
-        }catch(err) {
-            if (err instanceof PrismaKnownError){
-                console.log(err)
-                return getErrorMessage(err.code)
-            }
-            return "Unexpected error";
-        }
-    }
+			if (err instanceof PrismaKnownError) {
+				console.log(err);
+				return getErrorMessage(err.code);
+			}
+			return "Unexpected error";
+		}
+	},
 };
