@@ -1,78 +1,62 @@
 import { InferType } from "yup";
 import { UserSchema } from "./user.schema";
 import { UserRepository } from "./user.repository";
-import { failure, Result, success } from "../tools/result";
+import { failure, Result, success, IFailure } from "../tools/result";
 import { sign } from "jsonwebtoken";
 import { Config } from "../config/config";
-import { CreateUser, User, UserWithOutPassword } from "./user.types";
-import { compare, hash } from "bcrypt";
+import { compare, hash } from "bcryptjs";
+import { ErrorCodes } from "../types/error-codes";
+
 export const UserService = {
-	login: async (
-		data: InferType<typeof UserSchema.login>,
+    login: async (
+        data: InferType<typeof UserSchema.login>
+    ): Promise<Result<string>> => {
+        const result = await UserRepository.find({
+            email: data.email,
+        });
 
-	): Promise<Result<string>> => {
-		const result = await UserRepository.find({
-			email: data.email,
-            password: data.password
-		});
+        if (result.status === "failure") {
+            return result;
+        }
+        const isMatch = await compare(data.password, result.data.password);
+        if (!isMatch) {
+            return failure(ErrorCodes.UNAUTHORIZED);
+        }
+        const token = sign(result, Config.SECRET_KEY, {
+            expiresIn: Config.AUTH_TOKEN_TTL,
+        });
+        return success(token);
+    },
+    register: async (
+        data: InferType<typeof UserSchema.register>
+    ): Promise<Result<string>> => {
+        const user = await UserRepository.find({ email: data.email });
+        if (user.status === "failure") {
+            return user;
+        }
+        if (user) {
+            return failure(ErrorCodes.EXISTS);
+        }
 
-		if (typeof result === "string") {
-			return failure(result);
-		}
-
-		const isMatch = await compare(data.password, result.password);
-
-		if (!isMatch) {
-			return { status: "failure", message: "Passwords are not similar" };
-		}
-		// bcrypt
-		const token = sign(result, Config.SECRET_KEY, {
-			expiresIn: Config.AUTH_TOKEN_TTL,
-		});
-		return success(token);
-	},
-
-	register: async (data: CreateUser): Promise<Result<string>> => {
-		const user = await UserRepository.findUserByEmail(data.email);
-		if (user) {
-			return { status: "failure", message: "User exists" };
-		}
-
-		if (typeof user === "string") {
-			return { status: "failure", message: "something wrong" };
-		}
-
-		const hashedPassword = await hash(data.password, 10);
-		const hashedUserData = {
+        const hashedPassword = await hash(data.password, 10);
+		const hashedData = {
 			...data,
-			password: hashedPassword,
-		};
-		const newUser = await UserRepository.createUser(hashedUserData);
-		if (typeof newUser === "string") {
-			return { status: "failure", message: newUser };
+			password: hashedPassword
 		}
+		const newUser = await UserRepository.create(hashedData)
+        
+		const token = sign(newUser, Config.SECRET_KEY, {
+            expiresIn: Config.AUTH_TOKEN_TTL,
+        })
 
-		if (!newUser) {
-			return {
-				status: "failure",
-				message: "User wasn`t created successfully",
-			};
-		}
-		const token = sign({ id: newUser.id }, Config.SECRET_KEY, {
-			expiresIn: Config.AUTH_TOKEN_TTL,
-		});
-
-		return success(token);
-	},
-
-	user: async (id: number): Promise<Result<UserWithOutPassword>> => {
-		const user = await UserRepository.findUserById(id);
-		if (!user) {
-			return { status: "failure", message: "user not found" };
-		}
-		if (typeof user === "string") {
-			return { status: "failure", message: user };
-		}
-		return success(user);
-	},
+        return success(token)
+		
+    },
+    getMe: async (userId: number) => {
+        const user = await UserRepository.find({ id: userId });
+        if (!user) {
+            return failure(ErrorCodes.UNAUTHORIZED);
+        }
+        return success(user);
+    },
 };
