@@ -5,6 +5,7 @@ import { failure } from "../tools/result";
 
 export const UserController = {
 	login: async (req: Request, res: Response, next: NextFunction) => {
+		
 		const result = await UserService.login(req.body);
 		if (result.status === "failure") {
 			next(result);
