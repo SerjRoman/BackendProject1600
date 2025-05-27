@@ -2,6 +2,7 @@ import { Router } from "express"
 import { validateMiddleware } from "../middlewares/validate"
 import { UserSchema } from "./user.schema"
 import { UserController } from "./user.controller"
+import { tokenExists } from "../middlewares/tokenExists"
 
 const router = Router()
 
