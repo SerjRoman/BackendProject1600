@@ -26,3 +26,4 @@ export function failure(code?: ErrorCodes, message?: string) : IFailure{
         code: code
     }
 }
+

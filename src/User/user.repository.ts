@@ -13,8 +13,6 @@ export const UserRepository = {
 		} catch (err) {
 			if (err instanceof PrismaKnownError) {
 				switch (err.code) {
-					case PrismaErrorCodes.UNIQUE:
-						return failure(ErrorCodes.EXISTS)
 					case PrismaErrorCodes.NOT_EXIST:
 						return failure(ErrorCodes.NOT_FOUND) 
 					default:
@@ -58,8 +56,6 @@ export const UserRepository = {
 				switch (err.code) {
 					case PrismaErrorCodes.UNIQUE:
 						return failure(ErrorCodes.EXISTS)
-					case PrismaErrorCodes.NOT_EXIST:
-						return failure(ErrorCodes.NOT_FOUND) 
 					default:
 						return failure(ErrorCodes.UNHANDLED);
 				}

@@ -21,16 +21,17 @@ export const UserController = {
 		res.json(result);
 	},
 	getMe: async (req: Request, res: Response, next: NextFunction) => {
-		const userId: number = res.locals.userId
+		const userId: number = res.locals.userId;
 		if (!userId) {
-			// next(failure(ErrorCodes.UNAUTHORIZED))
-			// return
-			throw failure(ErrorCodes.UNAUTHORIZED)
+			next(failure(ErrorCodes.UNAUTHORIZED));
+			return;
+			// throw failure(ErrorCodes.UNAUTHORIZED)
 		}
-		const result = await UserService.getMe(userId)
+		const result = await UserService.getMe(userId);
 		if (result.status === "failure") {
-			throw result;	
+			next(result);
+			return;
 		}
-		res.json(result)
-	}
+		res.json(result);
+	},
 };
