@@ -22,6 +22,7 @@ export const ContactController = {
 	},
 	createContact: async function (req: Request, res: Response, next: NextFunction) {
         const body = req.body;
+		body.ownerId = res.locals.userId
 		const result = await ContactService.createContact(body)
 		if (result.status == "failure") {
 			next(result);

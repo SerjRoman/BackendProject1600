@@ -1,5 +1,5 @@
 import { Result } from "../tools/result";
-import { Contact, CreateContact } from "./contact.types";
+import { Contact, ReceivedContact } from "./contact.types";
 import { ContactRepository } from "./contact.repository";
 
 export const ContactService = {
@@ -9,9 +9,7 @@ export const ContactService = {
 	getAllContacts: async function (): Promise<Result<Contact[]>> {
 		return await ContactRepository.getAllContacts();
 	},
-	createContact: async function (
-		data: CreateContact
-	): Promise<Result<Contact>> {
+	createContact: async function (data: ReceivedContact): Promise<Result<Contact>> {
 		return await ContactRepository.createContact(data);
 	},
 };

@@ -2,7 +2,7 @@ import { client, PrismaKnownError } from "../prisma/client";
 import { Prisma } from "../generated/prisma";
 import { Result, failure, success } from "../tools/result";
 import { ErrorCodes, PrismaErrorCodes } from "../types/error-codes";
-import { ContactWhereUnique, Contact, CreateContact } from "./contact.types";
+import { ContactWhereUnique, Contact, CreateContact, ReceivedContact } from "./contact.types";
 
 export const ContactRepository = {
     getContact: async function (where: ContactWhereUnique): Promise<Result<Contact>> {
@@ -38,7 +38,7 @@ export const ContactRepository = {
 			return failure(ErrorCodes.UNHANDLED);
         }
     },
-    createContact: async function (data: CreateContact): Promise<Result<Contact>> {
+    createContact: async function (data: ReceivedContact): Promise<Result<Contact>> {
         try {
             const contact = await client.contact.create({
                 data: data
