@@ -6,6 +6,7 @@ import { sign } from "jsonwebtoken";
 import { Config } from "../config/config";
 import { compare, hash } from "bcryptjs";
 import { ErrorCodes } from "../types/error-codes";
+import { uploadImage } from "../tools/upload-image";
 
 export const UserService = {
 	login: async (
@@ -22,7 +23,7 @@ export const UserService = {
 		if (!isMatch) {
 			return failure(ErrorCodes.UNAUTHORIZED);
 		}
-		const token = sign(result, Config.SECRET_KEY, {
+		const token = sign({ userId: result.data.id }, Config.SECRET_KEY, {
 			expiresIn: Config.AUTH_TOKEN_TTL,
 		});
 		return success(token);
@@ -31,21 +32,26 @@ export const UserService = {
 		data: InferType<typeof UserSchema.register>
 	): Promise<Result<string>> => {
 		const user = await UserRepository.find({ email: data.email });
-		if (user.status === "failure") {
+		if (user.status === "failure" && user.code !== ErrorCodes.NOT_FOUND) {
 			return user;
 		}
-		if (user) {
+		if (user.status === "success") {
 			return failure(ErrorCodes.EXISTS);
 		}
+
+		const avatar = await uploadImage(data.avatar);
 
 		const hashedPassword = await hash(data.password, 10);
 		const hashedData = {
 			...data,
+			avatar: avatar.fileName,
 			password: hashedPassword,
 		};
 		const newUser = await UserRepository.create(hashedData);
-
-		const token = sign(newUser, Config.SECRET_KEY, {
+		if (newUser.status == "failure") {
+			return newUser;
+		}
+		const token = sign({ userId: newUser.data.id }, Config.SECRET_KEY, {
 			expiresIn: Config.AUTH_TOKEN_TTL,
 		});
 

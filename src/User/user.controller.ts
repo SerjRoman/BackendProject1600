@@ -21,6 +21,7 @@ export const UserController = {
 		res.json(result);
 	},
 	getMe: async (req: Request, res: Response, next: NextFunction) => {
+        console.log(res.locals.userId)
 		const userId: number = res.locals.userId;
 		if (!userId) {
 			next(failure(ErrorCodes.UNAUTHORIZED));

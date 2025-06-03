@@ -14,7 +14,7 @@ export const UserRepository = {
 			if (err instanceof PrismaKnownError) {
 				switch (err.code) {
 					case PrismaErrorCodes.NOT_EXIST:
-						return failure(ErrorCodes.NOT_FOUND) 
+						return failure(ErrorCodes.NOT_FOUND)
 					default:
 						return failure(ErrorCodes.UNHANDLED);
 				}
