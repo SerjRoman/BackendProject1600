@@ -1,13 +1,11 @@
-import { Result } from "../tools/result";
 import { ChatRepository } from "./chat.repository";
-import { Chat } from "./chat.types";
+import { IChatService } from "./chat.types";
 
-export const ChatService = {
-	joinChat: async function (
-		chatId: number
-        // Здесь также нужно указать что функция возвращает тип Chat с необходимым include
-	): Promise<Result<Chat<{ messages: true; participants: true }>>> {
-        // Дженериком указываем этот тип
+// Типизацию функций сервиса можно сильно упростить за счет использования контрактов
+// Контракт это тип, который определяет что требуется для работы функций сервиса и какой выход из них
+export const ChatService: IChatService = {
+	joinChat: async function (chatId) {
+		// Дженериком указываем этот тип
 		return await ChatRepository.getChat<{
 			messages: true;
 			participants: true;

@@ -39,4 +39,7 @@ export type JoinChatCallback = (
 	response: Result<Chat<{ messages: true; participants: true }>>
 ) => void;
 
-
+// Вот этот тип называется контракт. Можно также выносить в отдельный файл chat.contract.ts
+export interface IChatService {
+	joinChat: (chatId: number) => Promise<Result<Chat<{ messages: true; participants: true }>>>
+}
