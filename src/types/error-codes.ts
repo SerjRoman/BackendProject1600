@@ -11,5 +11,4 @@ export enum ErrorCodes {
     UNAUTHORIZED = "UNAUTHORIZED",
     VALIDATION = "VALIDATION",
     NOT_EXIST = "NOT_EXIST",
-    NOT_EXIST = "NOT_EXIST"
 }

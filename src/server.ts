@@ -22,7 +22,8 @@ app.use("/api/users", UserRouter);
 app.use(errorHandlerMiddleware);
 
 httpServer.listen(PORT, HOST, () => {
-	console.log(`server is running on http://${HOST}:${PORT}`);
+	console.log(`HTTP server is running on http://${HOST}:${PORT}`);
+	console.log(`WebSocket server is running on ws://${HOST}:${PORT}`);
 });
 
 // Postman

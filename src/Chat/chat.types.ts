@@ -1,22 +1,42 @@
 import { Prisma } from "../generated/prisma";
 import { Message } from "../Message/message.types";
 import { Result } from "../tools/result";
+// По типам
+// Проще сделать следующее:
+// Принимать не весь тип который требует ChatGetPayload, а только необходимое нам include
+// Теперь T наследуется от ChatInclude и используются только для Include
+// До этого тип T был очень большим и излшине тяжелым, сейчас он относится только к include
+export type Chat<T extends ChatInclude = {}> = Prisma.ChatGetPayload<{
+	include: T;
+}>;
 
-export type Chat = Prisma.ChatGetPayload<{}>;
 export type ChatWhereUnique = Prisma.ChatWhereUniqueInput;
 export type CreateChat = Prisma.ChatCreateInput;
-// export type ReceivedChat = {
-//     chat: string
-// }
+export type ChatInclude = Prisma.ChatInclude;
 
 export interface IChatServerEvents {
-	chatUpdate: (data: { chatId: number; lastMessage: Message }) => void;
+	chatUpdate: (data: IChatUpdatePayload) => void;
 }
 
 export interface IChatClientEvents {
-	joinChat: (
-		data: { chatId: number },
-		callback: (response: Result<string>) => void
-	) => void;
-	leaveChat: (data: { chatId: number }) => void;
+	// Также не забываем типизировать колбэк
+	joinChat: (data: IJoinChatPayload, callback: JoinChatCallback) => void;
+	leaveChat: (data: ILeaveChatPayload) => void;
 }
+
+export interface IJoinChatPayload {
+	chatId: number;
+}
+export interface ILeaveChatPayload {
+	chatId: number;
+}
+export interface IChatUpdatePayload {
+	chatId: number;
+	lastMessage: Message;
+}
+
+export type JoinChatCallback = (
+	response: Result<Chat<{ messages: true; participants: true }>>
+) => void;
+
+
