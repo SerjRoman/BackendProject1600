@@ -5,8 +5,8 @@ import { ContactValidation } from "./contact.validate";
 import { tokenExists } from "../middlewares/tokenExists";
 
 const router = express.Router();
-router.use(tokenExists);
-// TODO: Добавить валидацию для создания контакта
+// router.use(tokenExists);
+
 router.get("/", ContactController.getAllContacts);
 router.get("/:id", ContactController.getContactById);
 router.post(

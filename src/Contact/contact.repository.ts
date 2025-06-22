@@ -1,14 +1,7 @@
 import { client, PrismaKnownError } from "../prisma/client";
-import { Prisma } from "../generated/prisma";
 import { Result, failure, success } from "../tools/result";
 import { ErrorCodes, PrismaErrorCodes } from "../types/error-codes";
-import {
-	ContactWhereUnique,
-	Contact,
-	CreateContact,
-	ReceivedContact,
-} from "./contact.types";
-import { User } from "../User/user.types";
+import { ContactWhereUnique, Contact, ReceivedContact } from "./contact.types";
 
 export const ContactRepository = {
 	getContact: async function (
@@ -32,21 +25,13 @@ export const ContactRepository = {
 			return failure(ErrorCodes.UNHANDLED);
 		}
 	},
-	//for one user
-	getAllContacts: async function (userId: number): Promise<Result<User[]>> {
+	getAllContacts: async function (
+		userId: number
+	): Promise<Result<Contact[]>> {
 		try {
-			const contacts = await client.user.findMany({
+			const contacts = await client.contact.findMany({
 				where: {
-					OR: [
-						{
-							contacts: {
-								some: { ownerId: userId },
-							},
-						},
-					],
-					NOT: {
-						id: userId,
-					},
+					ownerId: userId,
 				},
 			});
 			return success(contacts);
@@ -69,6 +54,7 @@ export const ContactRepository = {
 			});
 			return success(contact);
 		} catch (err) {
+            console.log(err)
 			if (err instanceof PrismaKnownError) {
 				switch (err.code) {
 					case PrismaErrorCodes.UNIQUE:
