@@ -34,6 +34,7 @@ export const ContactController = {
 			next(result);
 			return;
 		}
+        console.log(result)
 		res.json(result);
 	},
 	createContact: async function (

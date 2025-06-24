@@ -9,7 +9,7 @@ import { errorHandlerMiddleware } from "./middlewares/errorHandler";
 import { join } from "path";
 
 const app = express();
-const HOST = "localhost";
+const HOST = "192.168.0.115";
 const PORT = 8000;
 
 const httpServer = createServer(app)
