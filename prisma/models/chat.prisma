@@ -1,8 +1,8 @@
 model Chat {
   id            Int               @id @default(autoincrement())
   messages      Message[]
-  lastMessage   Message           @relation(fields: [lastMessageId], references: [id], name: "chatLastMessage")
-  lastMessageId Int               @unique
+  lastMessage   Message?           @relation(fields: [lastMessageId], references: [id], name: "chatLastMessage")
+  lastMessageId Int?               @unique
   participants  ChatParticipant[]
 }
 

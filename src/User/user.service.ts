@@ -62,7 +62,7 @@ export const UserService = {
 		if (!user) {
 			return failure(ErrorCodes.UNAUTHORIZED);
 		}
-		return success(user);
+		return user;
 	},
 	getUserByUsername: async (username: string) => {
 		return await UserRepository.findWithoutPassword({ username: username });
