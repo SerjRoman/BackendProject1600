@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { UserRouter } from "./User/user.router";
 import { ContactRouter } from "./Contact/contact.router"
+import {ChatRouter} from "./Chat/chat.router"
 import { createServer } from "http";
 import { authenticate } from "./middlewares/authenticate";
 import { initSocketServer } from "./socket";
@@ -21,6 +22,7 @@ app.use("/media/", express.static(join(__dirname, '../', '/media/')))
 app.use(authenticate);
 app.use("/api/users", UserRouter);
 app.use("/api/contacts", ContactRouter)
+app.use("/api/chats", ChatRouter)
 app.use(errorHandlerMiddleware);
 
 httpServer.listen(PORT, HOST, () => {

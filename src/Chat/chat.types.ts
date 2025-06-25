@@ -10,7 +10,9 @@ export type Chat<T extends ChatInclude = {}> = Prisma.ChatGetPayload<{
 	include: T;
 }>;
 
+
 export type ChatWhereUnique = Prisma.ChatWhereUniqueInput;
+export type ChatWhere = Prisma.ChatWhereInput;
 export type CreateChat = Prisma.ChatCreateInput;
 export type ChatInclude = Prisma.ChatInclude;
 
@@ -41,5 +43,14 @@ export type JoinChatCallback = (
 
 // Вот этот тип называется контракт. Можно также выносить в отдельный файл chat.contract.ts
 export interface IChatService {
-	joinChat: (chatId: number) => Promise<Result<Chat<{ messages: true; participants: true }>>>
+	joinChat: (
+		chatId: number
+	) => Promise<Result<Chat<{ messages: true; participants: true }>>>;
+	getChats: (
+		userId: number
+	) => Promise<Result<Chat<{ lastMessage: true; participants: true }>[]>>;
+	createChat: (data: {
+		contactId: number;
+		userId: number;
+	}) => Promise<Result<Chat>>;
 }
