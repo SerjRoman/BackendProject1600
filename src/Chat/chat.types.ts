@@ -1,6 +1,8 @@
 import { Prisma } from "../generated/prisma";
 import { Message } from "../Message/message.types";
 import { Result } from "../tools/result";
+import { Contact } from "../Contact/contact.types";
+import { User } from "../User/user.types";
 // По типам
 // Проще сделать следующее:
 // Принимать не весь тип который требует ChatGetPayload, а только необходимое нам include
@@ -9,7 +11,6 @@ import { Result } from "../tools/result";
 export type Chat<T extends ChatInclude = {}> = Prisma.ChatGetPayload<{
 	include: T;
 }>;
-
 
 export type ChatWhereUnique = Prisma.ChatWhereUniqueInput;
 export type ChatWhere = Prisma.ChatWhereInput;
@@ -53,4 +54,14 @@ export interface IChatService {
 		contactId: number;
 		userId: number;
 	}) => Promise<Result<Chat>>;
+	getChatsParticipantsInfo: (id: number) => Promise<
+		Result<{
+			chats: Chat<{
+				lastMessage: true;
+				participants: { select: { userId: true } };
+			}>[];
+			contacts: Contact[];
+			users: User[];
+		}>
+	>;
 }

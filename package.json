@@ -28,6 +28,7 @@
 		"fs": "^0.0.1-security",
 		"http": "^0.0.1-security",
 		"jsonwebtoken": "^9.0.2",
+		"ngrok": "^5.0.0-beta.2",
 		"prisma": "^6.7.0",
 		"socket.io": "^4.8.1",
 		"ts-node": "^10.9.2",

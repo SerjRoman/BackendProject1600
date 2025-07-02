@@ -1,5 +1,7 @@
 import { Socket } from "socket.io";
 import { IChatClientEvents, IChatServerEvents } from "../Chat/chat.types";
+import { Server as SocketServer } from "socket.io";
+
 import {
 	IMessageClientEvents,
 	IMessageServerEvents,
@@ -12,4 +14,15 @@ export interface SocketData {
 	userId: number;
 }
 
-export type AuthenticatedSocket = Socket<AppClientEvents, AppServerEvents, {}, SocketData>
+export type AuthenticatedSocket = Socket<
+	AppClientEvents,
+	AppServerEvents,
+	{},
+	SocketData
+>;
+export type ServerSocket = SocketServer<
+	AppClientEvents,
+	AppServerEvents,
+	{},
+	SocketData
+>;

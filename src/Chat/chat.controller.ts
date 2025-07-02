@@ -33,4 +33,17 @@ export const chatController = {
 		}
 		res.json(result);
 	},
+	getChatsParticipantsInfo: async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) => {
+		const userId = res.locals.userId;
+		const result = await ChatService.getChatsParticipantsInfo(userId);
+		if (result.status == "failure") {
+			next(result);
+			return;
+		}
+		res.json(result);
+	},
 };

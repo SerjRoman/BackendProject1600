@@ -1,9 +1,10 @@
 import { Prisma } from "../generated/prisma";
-import { AuthenticatedSocket } from "../types/socket";
+import { Result } from "../tools/result";
+import { AuthenticatedSocket, ServerSocket } from "../types/socket";
 
 export type Message = Prisma.MessageGetPayload<{}>;
 export type MessageWhereUnique = Prisma.MessageWhereUniqueInput;
-export type CreateMessage = Prisma.MessageCreateInput;
+export type CreateMessage = Prisma.MessageUncheckedCreateInput;
 // export type ReceivedMessage= {
 //     type: string,
 //     text: string?,
@@ -20,14 +21,7 @@ export interface IMessageServerEvents {
 export interface IMessageClientEvents {
 	sendMessage: (data: ISendMessagePayload) => void;
 }
-export interface INewMessagePayload {
-	text: string | null;
-	mediaUrl: string | null;
-	type: string;
-	chatId: number;
-	createdAt: Date;
-	senderId: number;
-}
+export type INewMessagePayload = Message;
 export interface ISendMessagePayload {
 	text: string | null;
 	mediaUrl: string | null;
@@ -36,7 +30,24 @@ export interface ISendMessagePayload {
 }
 
 export interface IMessageSocketController {
-	sendMessage: (socket: AuthenticatedSocket, data: ISendMessagePayload) => void;
+	sendMessage: (
+		socket: AuthenticatedSocket,
+        ioServer: ServerSocket,
+		data: ISendMessagePayload
+	) => void;
 	newMessage: (socket: AuthenticatedSocket, data: INewMessagePayload) => void;
-	registerMessageControllers: (socket: AuthenticatedSocket) => void;
+	registerMessageControllers: (
+		socket: AuthenticatedSocket,
+		ioServer: ServerSocket
+	) => void;
+}
+
+export interface IMessageService {
+	createMessage: ({
+		data,
+		userId,
+	}: {
+		data: ISendMessagePayload;
+		userId: number;
+	}) => Promise<Result<Message>>;
 }

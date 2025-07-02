@@ -6,10 +6,11 @@ import { CreateChat, IChatService } from "./chat.types";
 export const ChatService: IChatService = {
 	joinChat: async function (chatId) {
 		// Дженериком указываем этот тип
-		return await ChatRepository.getChat<{
+		const chat = await ChatRepository.getChat<{
 			messages: true;
 			participants: true;
 		}>({ id: chatId }, { messages: true, participants: true });
+		return chat;
 	},
 	getChats: async function getChats(userId: number) {
 		return await ChatRepository.getAllChats<{
@@ -29,5 +30,8 @@ export const ChatService: IChatService = {
 			},
 		};
 		return await ChatRepository.createChat(createChatData);
+	},
+	getChatsParticipantsInfo: async (id: number) => {
+		return await ChatRepository.getChatsParticipantInfo(id);
 	},
 };

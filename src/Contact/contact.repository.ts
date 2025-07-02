@@ -54,7 +54,6 @@ export const ContactRepository = {
 			});
 			return success(contact);
 		} catch (err) {
-            console.log(err)
 			if (err instanceof PrismaKnownError) {
 				switch (err.code) {
 					case PrismaErrorCodes.UNIQUE:
